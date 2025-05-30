@@ -1,40 +1,50 @@
-[tool.poetry]
+[project]
 name = "lightning_rod"
 version = "1.0.0"
 description = "Function library for the Bolt scripting language."
-authors = ["ArcticYeti <arcticyeti1@gmail.com>"]
-license = "MIT"
-
-homepage = "https://github.com/reapermc/lightning-rod"
+authors = [{ name = "ArcticYeti", email = "arcticyeti1@gmail.com" }]
+requires-python = "~=3.12"
 readme = "README.md"
-
+license = "MIT"
 keywords = [
-  "beet",
-  "bolt",
-  "minecraft",
-  "datapack",
-  "minecraft-commands",
-  "mcfunction",
-  "library",
-  "reapermc",
+    "beet",
+    "bolt",
+    "minecraft",
+    "datapack",
+    "minecraft-commands",
+    "mcfunction",
+    "library",
+    "reapermc",
+]
+dependencies = [
+    "beet>=0.110.1",
+    "bolt>=0.49.1",
+    "mecha>=0.98.1",
 ]
 
+[project.urls]
+Homepage = "https://github.com/reapermc/lightning-rod"
+
+[dependency-groups]
+dev = [
+    "black>=25.1.0",
+    "isort>=6.0.1",
+    "lectern>=0.34.0",
+    "pytest>=8.3.5",
+    "pytest-insta>=0.3.0",
+    "python-semantic-release>=10.0.2",
+]
+
+
+[tool.hatch.build.targets.sdist]
 include = ["lightning_rod/py.typed"]
 
-[tool.poetry.dependencies]
-python = "^3.12"
-beet = ">=0.89.1"
-mecha = ">=0.73.0"
-bolt = ">=0.36.0"
-wicked-expressions = "^1.3.2"
+[tool.hatch.build.targets.wheel]
+include = ["lightning_rod/py.typed"]
 
-[tool.poetry.group.dev.dependencies]
-pytest = "^7.1.3"
-black = "^22.10.0"
-isort = "^5.10.1"
-pytest-insta = "^0.1.11"
-lectern = ">=0.25.0"
-python-semantic-release = "^7.32.1"
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [tool.pytest.ini_options]
 addopts = "tests --import-mode=importlib"
@@ -51,11 +61,7 @@ profile = "black"
 [tool.semantic_release]
 branch = "main"
 version_variable = "lightning_rod/__init__.py:__version__"
-version_toml = "pyproject.toml:tool.poetry.version"
+version_toml = "pyproject.toml:.project.version"
 major_on_zero = true
 upload_to_repository = true
-build_command = "poetry build"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+build_command = "uv build"
