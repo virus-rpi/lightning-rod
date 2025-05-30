@@ -1,7 +1,6 @@
 from lightning_rod:api import random, power, sqrt
-from wicked_expressions:api import Var, qInt
 
-x = Var(qInt, 0)
+x = 0
 
 function ./random_test:
     tellraw @s random(x, 10)

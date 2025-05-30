@@ -1,69 +1,65 @@
-from wicked_expressions:api import copy_args, Scoreboard, qIntSource, Var, StaticVar, qInt, ExpressionNode
+from bolt_expressions import Scoreboard
 from ./config import Config
 from ./utils import binary_progression
 
-@copy_args(min=StaticVar[qInt], max=StaticVar[qInt])
-def random(min: int | ExpressionNode, max: int | ExpressionNode) -> qIntSource:
-    SETUP_PATH = f"{Config.GLOBAL_DIR}/math/random_setup"
-    STATIC_PATH = f"{Config.LOCAL_DIR}/math/random"
-    lcg = Scoreboard(Config.SCOREBOARD_ROOT)['.random.math.lcg']
-    output = Var(qInt)
+def random(min_val: int, max_val: int):
+    """Random number generator using Linear Congruential Generator"""
+    math = Scoreboard.objective("random.math")
 
-    merge function_tag minecraft:load {"values": [SETUP_PATH]}
-    function SETUP_PATH:
-        if not lcg.exists():
-            with lcg.store():
-                seed
-
+    # LCG constants
     LCG_A = 1630111353
     LCG_C = 1623164762
     LCG_M = 2147483647
 
-    execute function STATIC_PATH:
-        size = StaticVar(qInt)
-        temp = StaticVar(qInt)
+    # Initialize LCG seed if it doesn't exist
+    with math["#lcg"].__branch__():
+        math["#lcg"] = 12345
 
-        size = max - min + 1
-        lcg = (lcg * LCG_A + LCG_C) % LCG_M
-        temp = lcg / 8 % size + min
+    # Calculate range
+    math["#size"] = max_val - min_val + 1
 
-    output = temp
-    return output
+    # LCG calculation
+    math["#lcg"] *= LCG_A
+    math["#lcg"] += LCG_C
+    math["#lcg"] %= LCG_M
 
-@copy_args(value=StaticVar[qInt], exponent=StaticVar[qInt])
-def power(value: int | ExpressionNode, exponent: int | ExpressionNode) -> qIntSource:
-    STATIC_PATH = f"{Config.LOCAL_DIR}/math/power"
-    temp = StaticVar(qInt)
-    output = Var(qInt)
+    # Generate random number in range
+    math["#temp"] = math["#lcg"] / 8
+    math["#temp"] %= math["#size"]
+    math["#output"] = math["#temp"] + min_val
 
-    temp = value
+    return math["#output"].component()
 
-    execute function STATIC_PATH:
-        temp *= value
-        exponent -= 1
+def power(value: int, exponent: int):
+    """Calculate value^exponent using repeated multiplication"""
+    math = Scoreboard.objective("math.power")
 
-        if exponent > 1:
-            function STATIC_PATH
+    math["#base"] = value
+    math["#exp"] = exponent
+    math["#result"] = 1
 
-    output = temp
-    return output
+    for _ in range(exponent):
+        math["#result"] *= math["#base"]
 
-@copy_args(value=StaticVar[qInt])
-def sqrt(value: int | ExpressionNode) -> qIntSource:
-    STATIC_PATH = f"{Config.LOCAL_DIR}/math/sqrt"
-    temp = StaticVar(qInt)
-    temp2 = StaticVar(qInt)
-    output = Var(qInt)
+    return math["#result"].component()
 
-    execute function STATIC_PATH:
-        temp2 = 0
+def sqrt(value: int):
+    """Calculate integer square root using binary search"""
+    math = Scoreboard.objective("math.sqrt")
 
-        for binary_increment in binary_progression(16, reversed=True):
-            temp = temp2 + binary_increment
-            temp *= temp
+    math["#input"] = value
+    math["#result"] = 0
 
-            if temp <= value:
-                temp2 += binary_increment
+    # Binary search implementation
+    for binary_increment in binary_progression(16, reversed=True):
+        math["#increment"] = binary_increment
+        math["#temp"] = math["#result"] + math["#increment"]
+        math["#temp_squared"] = math["#temp"] * math["#temp"]
 
-    output = temp2
-    return output
+        # Create condition for comparison
+        condition = math["#temp_squared"] <= math["#input"]
+        with condition.__branch__():
+            math["#result"] += math["#increment"]
+
+    return math["#result"].component()
+

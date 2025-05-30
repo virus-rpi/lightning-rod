@@ -21,8 +21,12 @@
 
 ```
 
-`@function demo:demo`
+`@function demo:get_daytime`
 
 ```mcfunction
-# test comment
+tellraw @s time query daytime
 ```
+
+
+### minecraft
+

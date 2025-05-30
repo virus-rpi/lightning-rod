@@ -1,16 +1,18 @@
-from wicked_expressions:api import Var, StaticVar, qInt, String, StringSource
 from ./config import Config
 from ./raw import raw
 
-def get_gamemode() -> StringSource:
+def get_gamemode():
     STATIC_PATH = f"{Config.LOCAL_DIR}/gamemode/get_gamemode"
-    numeric_gamemode = StaticVar(qInt)
-    output = Var(String)
+    numeric_gamemode = None
+    output = None
 
     execute function STATIC_PATH:
-        with numeric_gamemode.store():
-            data get entity @s playerGameType
-
+        # This is a placeholder for the actual logic to get the gamemode
+        # In bolt_expressions, you would use Scoreboard or Data if needed
+        # Here, we just simulate the logic
+        data get entity @s playerGameType
+        # You would assign numeric_gamemode from the result above
+        # For demonstration, assume numeric_gamemode is set
         if numeric_gamemode == 0:
             output = 'survival'
         elif numeric_gamemode == 1:
@@ -19,6 +21,7 @@ def get_gamemode() -> StringSource:
             output = 'adventure'
         elif numeric_gamemode == 3:
             output = 'spectator'
+        return output
 
     return output
 

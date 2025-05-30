@@ -19,6 +19,7 @@ keywords = [
 dependencies = [
     "beet>=0.110.1",
     "bolt>=0.49.1",
+    "bolt-expressions>=0.17.0",
     "mecha>=0.98.1",
 ]
 
